@@ -14,7 +14,7 @@ The checkpoints can be found in the directory `checkpoints`.
 ### SIMI
 
 ## Training the baseline system
-If you want to reproduce the baseline system, please following the instructions below.
+If you want to reproduce the baseline system, please follow the instructions below.
 ### CPC
 ### K-means
 ### BERT
