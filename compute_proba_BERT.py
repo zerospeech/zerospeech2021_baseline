@@ -247,12 +247,12 @@ def compute_proba_BERT_mlm_span(
 def parseArgs(argv):
     # Run parameters
     parser = argparse.ArgumentParser(description='Compute pseudo log-probabilities of quantized units with a trained BERT model.')
-    parser.add_argument('input', type=str,
+    parser.add_argument('pathQuantizedUnits', type=str,
                         help='Path to the quantized units. Each line of the input file must be'
                         'of the form file_name[tab]pseudo_units (ex. hat  1,1,2,3,4,4)')
-    parser.add_argument('output', type=str,
+    parser.add_argument('pathOutputFile', type=str,
                         help='Path to the output file containing scores.')
-    parser.add_argument('checkpointBERTmodel', type=str,
+    parser.add_argument('pathBERTCheckpoint', type=str,
                         help='Path to the trained fairseq BERT(RoBERTa) model.')
     parser.add_argument('--dict', type=str,	
                        help='Path to the dictionary file (dict.txt) used to train the BERT model'
@@ -285,10 +285,10 @@ def main(argv):
 
     # Load input file
     print("")
-    print(f"Reading input file from {args.input}")
+    print(f"Reading input file from {args.pathQuantizedUnits}")
     input_file_names = []
     intput_file_seqs = []
-    with open(args.input, 'r') as f:
+    with open(args.pathQuantizedUnits, 'r') as f:
         for line in f:
             file_name, file_seq = line.strip().split("\t")
             # Convert sequence to the desired input form
@@ -300,9 +300,9 @@ def main(argv):
     
     # Continue
     if args.resume:
-        if exists(args.output):
+        if exists(args.pathOutputFile):
             existing_file_names = []
-            with open(args.output, 'r') as f:
+            with open(args.pathOutputFile, 'r') as f:
                 lines = [line for line in f]
             for line in lines:
                 file_name, score = line.strip().split("\t")
@@ -313,33 +313,33 @@ def main(argv):
             intput_file_seqs = intput_file_seqs[len(existing_file_names):]
             print(f"Found existing output file, continue to compute scores of {len(intput_file_seqs)} sequences left!")
     else:
-        assert not exists(args.output), \
-            f"Output file {args.output} already exists !!! If you want to continue computing scores, please check the --resume option."
+        assert not exists(args.pathOutputFile), \
+            f"Output file {args.pathOutputFile} already exists !!! If you want to continue computing scores, please check the --resume option."
 
     # Load BERT model
     if args.dict is None:
-        PATH_DATA = dirname(args.checkpointBERTmodel)
+        PATH_DATA = dirname(args.pathBERTCheckpoint)
     else:
         PATH_DATA = dirname(args.dict)
     assert exists(join(PATH_DATA, "dict.txt")), \
         f"Dictionary file (dict.txt) not found in {PATH_DATA}"
     print("")
-    print(f"Loading RoBERTa model from {args.checkpointBERTmodel}...")
+    print(f"Loading RoBERTa model from {args.pathBERTCheckpoint}...")
     print(f"Path data {PATH_DATA}")
-    roberta = RobertaModel.from_pretrained(dirname(args.checkpointBERTmodel), basename(args.checkpointBERTmodel), PATH_DATA)
+    roberta = RobertaModel.from_pretrained(dirname(args.pathBERTCheckpoint), basename(args.pathBERTCheckpoint), PATH_DATA)
     roberta.eval()  # disable dropout (or leave in train mode to finetune)
     print("Model loaded !")
 
     # Run and save outputs
     print("")
-    print(f"Computing log-probabilities and saving results to {args.output}...")
+    print(f"Computing log-probabilities and saving results to {args.pathOutputFile}...")
     _ = compute_proba_BERT_mlm_span(
                             intput_file_seqs, roberta, tokenized=True,
                             decoding_span_size=args.decoding_span_size, temporal_sliding_size = args.temporal_sliding_size,
                             span_overlap=not args.no_overlap,
                             batchsen_size=args.batchsen_size, inner_batch_size = args.inner_batch_size, 
                             gpu=not args.cpu, print_tokens=False, verbose=False,
-                            save_to=args.output, file_names=input_file_names)
+                            save_to=args.pathOutputFile, file_names=input_file_names)
 
 if __name__ == "__main__":
     args = sys.argv[1:]

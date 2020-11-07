@@ -18,6 +18,10 @@ def readArgs(pathArgs):
         
     return args
 
+def writeArgs(pathArgs, args):
+    with open(pathArgs, 'w') as file:
+        json.dump(vars(args), file, indent=2)
+
 def loadClusterModule(pathCheckpoint):
     print(f"Loading ClusterModule at {pathCheckpoint}")
     state_dict = torch.load(pathCheckpoint, map_location=torch.device('cpu'))
@@ -56,11 +60,11 @@ def quantize_file(file_path, cpc_feature_function, clusterModule):
 def parseArgs(argv):
     # Run parameters
     parser = argparse.ArgumentParser(description='Quantize audio files using CPC Clustering Module.')
-    parser.add_argument('pathCheckpoint', type=str,
+    parser.add_argument('pathClusteringCheckpoint', type=str,
                         help='Path to the clustering checkpoint.')
     parser.add_argument('pathDB', type=str,
                         help='Path to the dataset that we want to quantize.')
-    parser.add_argument('pathOutput', type=str,
+    parser.add_argument('pathOutputDir', type=str,
                         help='Path to the output directory.')
     parser.add_argument('--pathSeq', type=str,	
                        help='Path to the sequences (file names) to be included used '
@@ -115,7 +119,13 @@ def main(argv):
     seqNames, _ = findAllSeqs(args.pathDB,
                                  speaker_level=1,
                                  extension=args.file_extension,
-                                 loadCache=False)
+                                 loadCache=True)
+    if len(seqNames) == 0 or not os.path.splitext(seqNames[0][1])[1].endswith(args.file_extension):
+        print(f"Seems like the _seq_cache.txt does not contain the correct extension, reload the file list")
+        seqNames, _ = findAllSeqs(args.pathDB,
+                                    speaker_level=1,
+                                    extension=args.file_extension,
+                                    loadCache=False)
     print(f"Done! Found {len(seqNames)} files!")
 
     # Filter specific sequences
@@ -132,17 +142,18 @@ def main(argv):
         print(f"Done! {len(seqNames)} files filtered!")
 
     # Check if directory exists
-    if not os.path.exists(args.pathOutput):
+    if not os.path.exists(args.pathOutputDir):
         print("")
-        print(f"Creating the output directory at {args.pathOutput}")
-        Path(args.pathOutput).mkdir(parents=True, exist_ok=True)
+        print(f"Creating the output directory at {args.pathOutputDir}")
+        Path(args.pathOutputDir).mkdir(parents=True, exist_ok=True)
+    writeArgs(os.path.join(args.pathOutputDir, "_info_args.json"), args)
 
     # Check if output file exists
     if not args.split:
         nameOutput = "quantized_outputs.txt"
     else:
         nameOutput = f"quantized_outputs_split_{idx_split}-{num_splits}.txt"
-    outputFile = os.path.join(args.pathOutput, nameOutput)
+    outputFile = os.path.join(args.pathOutputDir, nameOutput)
     
     # Get splits
     if args.split:
@@ -182,27 +193,31 @@ def main(argv):
         "No file to be quantized!"
 
     # Load Clustering args
-    assert args.pathCheckpoint[-3:] == ".pt"
-    if os.path.exists(args.pathCheckpoint[:-3] + "_args.json"):
-        pathConfig = args.pathCheckpoint[:-3] + "_args.json"
-    elif os.path.exists(os.path.join(os.path.dirname(args.pathCheckpoint), "checkpoint_args.json")):
-        pathConfig = os.path.join(os.path.dirname(args.pathCheckpoint), "checkpoint_args.json")
+    assert args.pathClusteringCheckpoint[-3:] == ".pt"
+    if os.path.exists(args.pathClusteringCheckpoint[:-3] + "_args.json"):
+        pathConfig = args.pathClusteringCheckpoint[:-3] + "_args.json"
+    elif os.path.exists(os.path.join(os.path.dirname(args.pathClusteringCheckpoint), "checkpoint_args.json")):
+        pathConfig = os.path.join(os.path.dirname(args.pathClusteringCheckpoint), "checkpoint_args.json")
     else:
         assert False, \
-            f"Args file not found in the directory {os.path.dirname(args.pathCheckpoint)}"
+            f"Args file not found in the directory {os.path.dirname(args.pathClusteringCheckpoint)}"
     clustering_args = readArgs(pathConfig)
     print("")
     print(f"Clutering args:\n{json.dumps(vars(clustering_args), indent=4, sort_keys=True)}")
     print('-' * 50)
 
     # Load CluterModule
-    clusterModule = loadClusterModule(args.pathCheckpoint)
+    clusterModule = loadClusterModule(args.pathClusteringCheckpoint)
     if not args.cpu:
         clusterModule.cuda()
 
     # Load FeatureMaker
     print("")
     print("Loading CPC FeatureMaker")
+    if not os.path.isabs(clustering_args.pathCheckpoint): # Maybe it's relative path
+        clustering_args.pathCheckpoint = os.path.join(os.path.dirname(os.path.abspath(args.pathClusteringCheckpoint)), clustering_args.pathCheckpoint)
+    assert os.path.exists(clustering_args.pathCheckpoint), \
+        f"CPC path at {clustering_args.pathCheckpoint} does not exist!!"
     if 'level_gru' in vars(clustering_args) and clustering_args.level_gru is not None:
         updateConfig = argparse.Namespace(nLevelsGRU=clustering_args.level_gru)
     else:
