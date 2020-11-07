@@ -63,7 +63,8 @@ def parseArgs(argv):
     parser.add_argument('pathOutput', type=str,
                         help='Path to the output directory.')
     parser.add_argument('--pathSeq', type=str,	
-                       help='Path to the sequences (file names) to be included used (if not speficied, included all files found in pathDB).')
+                       help='Path to the sequences (file names) to be included used '
+                       '(if not speficied, included all files found in pathDB).')
     parser.add_argument('--split', type=str, default=None,
                         help='If you want to divide the dataset in small splits, specify it '
                         'with idxSplit-numSplits (idxSplit > 0), eg. --split 1-20.')
@@ -236,7 +237,6 @@ def main(argv):
     print("")
     print(f"Quantizing audio files and saving outputs to {outputFile}...")
     f = open(outputFile, "a")
-    seqQuantLines = []
     bar = progressbar.ProgressBar(maxval=len(seqNames))
     bar.start()
     start_time = time()
@@ -258,7 +258,7 @@ def main(argv):
             f.write(outLine)
             addEndLine = True
     bar.finish()
-    print(f"...done {len(seqQuantLines)} files in {time()-start_time} seconds.")
+    print(f"...done {len(seqNames)} files in {time()-start_time} seconds.")
     f.close()
 
 if __name__ == "__main__":
