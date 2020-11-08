@@ -92,12 +92,12 @@ python path/to/CPC_audio/cpc/train.py \
 
 where examples of train_split.txt and test_split.txt can be found [here](https://drive.google.com/drive/folders/1BhJ2umKH3whguxMwifaKtSra0TgAbtfb).
 
-### K-means
+### k-means
 To train the k-means clustering, run the script `clustering_script.py` in the following [repository](https://github.com/facebookresearch/CPC_audio/tree/zerospeech/cpc/criterion/clustering) `CPC_audio/cpc/criterion/clustering/`.
 
 Example command:
 ```bash
-python clustering_script.py \
+python path/to/CPC_audio/cpc/criterion/clustering/clustering_script.py \
     --pathDB path/to/LibriSpeech/train-clean-100/ --recursionLevel 1 \
     --nClusters 50 --MAX_ITER 150 --level_gru 2 \
     --save --load --batchSizeGPU 500 \
