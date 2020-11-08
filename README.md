@@ -125,7 +125,7 @@ fairseq-preprocess --only-source \
   --destdir ../fairseq-bin-data/LibriSpeech \
   --workers 80
 ```
-**NOTE:** The data files contain only the quantized units seperated by space, without the name of the audio files. We need to convert to the right form from the outputs of the `clustering_quantization.py` script, e.g. `5895-34629-0032	31,13,12,12,12,...,13` → `31 13 12 12 12 ... 13 `.
+**NOTE:** The data files contain only the quantized units seperated by space, without the name of the audio files. We need to convert to the right form from the outputs of the `clustering_quantization.py` script, e.g. `5895-34629-0032	31,13,12,12,12,...,13` → `31 13 12 12 12 ... 13`.
 
 Example train command:
 ```bash
