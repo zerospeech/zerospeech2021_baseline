@@ -25,11 +25,8 @@ def writeArgs(pathArgs, args):
 def loadClusterModule(pathCheckpoint):
     print(f"Loading ClusterModule at {pathCheckpoint}")
     state_dict = torch.load(pathCheckpoint, map_location=torch.device('cpu'))
-    if "state_dict" in state_dict: #kmeans
-        clusterModule = kMeanCluster(torch.zeros(1, state_dict["n_clusters"], state_dict["dim"]))
-        clusterModule.load_state_dict(state_dict["state_dict"])
-    else: #dpmeans
-        clusterModule = kMeanCluster(state_dict["mu"])
+    clusterModule = kMeanCluster(torch.zeros(1, state_dict["n_clusters"], state_dict["dim"]))
+    clusterModule.load_state_dict(state_dict["state_dict"])
     return clusterModule
 
 def quantize_file(file_path, cpc_feature_function, clusterModule):
