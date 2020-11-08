@@ -82,21 +82,54 @@ To train the CPC model, follow the instructions at https://github.com/facebookre
 
 Example command:
 ```bash
-
+python path/to/CPC_audio/cpc/train.py \
+    --pathDB path/to/LibriSpeech/train-clean-100 \
+    --pathCheckpoint checkpoints/CPC_small_960h \
+    --pathTrain path/to/LibriSpeech/LibriSpeech100_labels_split/train_split.txt \
+    --pathVal path/to/LibriSpeech/LibriSpeech100_labels_split/test_split.txt \
+    --file_extension .flac
 ```
+
+where examples of train_split.txt and test_split.txt can be found [here](https://drive.google.com/drive/folders/1BhJ2umKH3whguxMwifaKtSra0TgAbtfb).
 
 ### K-means
 To train the k-means clustering, run the script `clustering_script.py` in the following [repository](https://github.com/facebookresearch/CPC_audio/tree/zerospeech/cpc/criterion/clustering) `CPC_audio/cpc/criterion/clustering/`.
 
 Example command:
 ```bash
-
+python clustering_script.py \
+    --pathDB path/to/LibriSpeech/train-clean-100/ --recursionLevel 1 \
+    --nClusters 50 --MAX_ITER 150 --level_gru 2 \
+    --save --load --batchSizeGPU 500 \
+    checkpoints/CPC_big_6kh/checkpoint_32.pt \
+    checkpoints/clustering_CPC_big_kmeans50/clustering_CPC_big_kmeans50.pt
 ```
+
+**NOTE:** This command was done on *one 16GB GPU*, and the batchSizeGPU should be modified according to nClusters, so as to fit the memory. Here are the recommended numbers:
+
+nClusters | 20 | 50 | 100 | 200 | 500 | 2000
+---|---|---|---|---|---|---
+batchSizeGPU | 500 | 500 | 300 | 200 | 100 | 50
 
 ### BERT
 We train the fairseq's RoBERTa model as similar to this [example](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.pretraining.md), with the exception that we used spans of masks insead of single masks (with additional --mask-multiple-length and --mask-stdev options).
 
 Example command:
 ```bash
-
+fairseq-train --fp16 $BIN_DATA_PATH \
+    --save-dir checkpoints/BERT_CPC_big_kmeans50 \
+    --keep-last-epochs 1 \
+    --train-subset train \
+    --num-workers 4 \
+    --task masked_lm --criterion masked_lm \
+    --arch roberta_base \
+    --sample-break-mode eos --tokens-per-sample 3072 --max-positions 6144 \
+    --optimizer adam --adam-betas '(0.9, 0.98)' --adam-eps 1e-06 --clip-norm 0.0 \
+    --lr-scheduler polynomial_decay --lr 0.0005 --total-num-update 250000 --warmup-updates 10000 \
+    --dropout 0.1 --attention-dropout 0.1 --weight-decay 0.01 \
+    --mask-multiple-length 10 --mask-prob 0.5 --mask-stdev 10 \
+    --max-tokens 4096 --update-freq 4 --max-update 250000 \
+    --seed 5 --log-format simple --log-interval 10 --skip-invalid-size-inputs-valid-test
 ```
+
+**NOTE:** This command was done on *32 16GB GPUs*. If train on less GPUs (n GPUs), the --update-freq should be set equal to 128/n. Also, if train on a 32GB GPU, should multiply --max-tokens by 2 accordingly.
