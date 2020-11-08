@@ -112,11 +112,24 @@ nClusters | 20 | 50 | 100 | 200 | 500 | 2000
 batchSizeGPU | 500 | 500 | 300 | 200 | 100 | 50
 
 ### BERT
+As long as we have the clustering module, we can quantize the LibriSpeech datasets and train the BERT model on the pseudo units.
+
 We train the fairseq's RoBERTa model as similar to this [example](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.pretraining.md), with the exception that we used spans of masks insead of single masks (with additional --mask-multiple-length and --mask-stdev options).
 
-Example command:
+Example preprocess command:
 ```bash
-fairseq-train --fp16 $BIN_DATA_PATH \
+fairseq-preprocess --only-source \
+  --trainpref ../quantized/LibriSpeech/fairseq_train.txt \
+  --validpref ../quantized/LibriSpeech/fairseq_valid_clean.txt \
+  --testpref ../quantized/LibriSpeech/fairseq_test_clean.txt \
+  --destdir ../fairseq-bin-data/LibriSpeech \
+  --workers 80
+```
+**NOTE:** The data files contain only the quantized units seperated by space, without the name of the audio files. We need to convert to the right form from the outputs of the `clustering_quantization.py` script, e.g. `5895-34629-0032	31,13,12,12,12,...,13` → `31 13 12 12 12 ... 13 `.
+
+Example train command:
+```bash
+fairseq-train --fp16 ../fairseq-bin-data/LibriSpeech \
     --save-dir checkpoints/BERT_CPC_big_kmeans50 \
     --keep-last-epochs 1 \
     --train-subset train \
