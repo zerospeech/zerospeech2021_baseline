@@ -1,5 +1,6 @@
 import gc
 from time import time
+from pathlib import Path
 from os.path import exists, join, basename, dirname
 import sys
 import argparse
@@ -297,6 +298,14 @@ def main(argv):
             input_file_names.append(file_name)
             intput_file_seqs.append(file_seq)
     print(f"Found {len(input_file_names)} sequences!")
+
+    # Check if directory exists
+    pathOutputDir = dirname(args.pathOutputFile)
+    if pathOutputDir and not os.path.exists(pathOutputDir):
+        print("")
+        print(f"Creating the output directory at {pathOutputDir}")
+        Path(pathOutputDir).mkdir(parents=True, exist_ok=True)
+    # writeArgs(os.path.join(pathOutputDir, "_info_args.json"), args)
     
     # Continue
     if args.resume:
