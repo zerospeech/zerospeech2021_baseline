@@ -7,13 +7,13 @@ import argparse
 
 import torch
 from fairseq.models.roberta import RobertaModel
-    
+
 
 def compute_proba_BERT_mlm_span(
                             sequences, model, tokenized=True,
                             decoding_span_size=15, temporal_sliding_size = 5,
                             span_overlap=True,
-                            batchsen_size=32, inner_batch_size = 128, 
+                            batchsen_size=32, inner_batch_size = 128,
                             gpu=False, print_tokens=False, verbose=False,
                             save_to=None, file_names=None):
     """
@@ -34,7 +34,7 @@ def compute_proba_BERT_mlm_span(
     temporal_sliding_size : int
         The temporal sliding size (Delta_t) parameter used to compute the pseudo-probability.
     span_overlap : bool
-        Wether to overlap the masking spans when computing the pseudo-probability. If False, the 
+        Wether to overlap the masking spans when computing the pseudo-probability. If False, the
         temporal_sliding_size is set to decoding_span_size.
     batchsen_size : int
         The number of sentences to be considered in each outer batch (batch of sentences).
@@ -47,9 +47,9 @@ def compute_proba_BERT_mlm_span(
         Wether to print explicitly the input tokens to the BERT model. Should only be used for debugging.
     verbose : bool
         Wether to print the scores of the input sequences. Should only be used for debugging.
-    save_to (optional) : str 
+    save_to (optional) : str
         Path to save the outputs.
-    file_names (optional) : list of strings 
+    file_names (optional) : list of strings
         If save_to is not None, a list of corresponding file names must be given.
 
     Return
@@ -70,13 +70,13 @@ def compute_proba_BERT_mlm_span(
         for sentence in sentences:
             if tokenized:
                 sentence_tokens = model.task.source_dictionary.encode_line("<s> " + sentence, append_eos=True, add_if_not_exist=False)
-                
+
                 if print_tokens:
                     print("|".join([model.task.source_dictionary.symbols[tok] for tok in sentence_tokens]))
             else:
                 bpe_sentence = '<s> ' + model.bpe.encode(sentence) + ' </s>'
                 sentence_tokens = model.task.source_dictionary.encode_line(bpe_sentence, append_eos=False, add_if_not_exist=False)
-                
+
                 if print_tokens:
                     print("|".join([model.decode(tok.unsqueeze(0)) for tok in sentence_tokens]))
 
@@ -105,12 +105,12 @@ def compute_proba_BERT_mlm_span(
             n_batch = len(masked_sentence_tokens_list)//inner_batch_size
 
             for i in range(n_batch):
-                sequences_inputs = torch.nn.utils.rnn.pad_sequence(masked_sentence_tokens_list[i*inner_batch_size : (i+1)*inner_batch_size], 
+                sequences_inputs = torch.nn.utils.rnn.pad_sequence(masked_sentence_tokens_list[i*inner_batch_size : (i+1)*inner_batch_size],
                                                                     batch_first = False, padding_value = pad_idx).t()
                 inputs_chunks.append(sequences_inputs)
 
             if len(masked_sentence_tokens_list) % inner_batch_size != 0:
-                sequences_inputs = torch.nn.utils.rnn.pad_sequence(masked_sentence_tokens_list[n_batch*inner_batch_size : ], 
+                sequences_inputs = torch.nn.utils.rnn.pad_sequence(masked_sentence_tokens_list[n_batch*inner_batch_size : ],
                                                                     batch_first = False, padding_value = pad_idx).t()
                 inputs_chunks.append(sequences_inputs)
         else:
@@ -127,9 +127,9 @@ def compute_proba_BERT_mlm_span(
 
             if gpu:
                 inputs_chk = inputs_chk.cuda()
-            
+
             outputs_chk = model.model(inputs_chk)[0]
-            
+
             # Release all GPU memory
             if gpu:
                 # outputs_chk = outputs_chk.cpu()
@@ -209,7 +209,7 @@ def compute_proba_BERT_mlm_span(
                     file_names_batch = file_names[i*batchsen_size : min((i+1)*batchsen_size, len(sequences))]
                     outLines = []
                     for fname, score in zip(file_names_batch, logproba_batch):
-                        outLines.append("\t".join([fname, str(score)]))
+                        outLines.append(" ".join([fname, str(score)]))
                     outLines = "\n".join(outLines)
                     with open(save_to, 'a') as f:
                         if addEndLine:
@@ -217,7 +217,7 @@ def compute_proba_BERT_mlm_span(
                         else:
                             f.write(outLines)
                             addEndLine = True
-                
+
                 print("Batch {:d}/{:d}. Input shapes: {} Done in {:4f} s.\t\t\t".format(
                                                                     i+1, n_batch,
                                                                     shape_statistics,
@@ -233,14 +233,14 @@ def compute_proba_BERT_mlm_span(
             model = model.cpu()
             gc.collect()
             torch.cuda.empty_cache()
-    
+
     except:
         # Release all GPU memory
         if gpu:
             model = model.cpu()
             gc.collect()
             torch.cuda.empty_cache()
-        
+
         raise
 
     return logproba_all
@@ -255,7 +255,7 @@ def parseArgs(argv):
                         help='Path to the output file containing scores.')
     parser.add_argument('pathBERTCheckpoint', type=str,
                         help='Path to the trained fairseq BERT(RoBERTa) model.')
-    parser.add_argument('--dict', type=str,	
+    parser.add_argument('--dict', type=str,
                        help='Path to the dictionary file (dict.txt) used to train the BERT model'
                        '(if not speficied, look for dict.txt in the model directory)')
     parser.add_argument('--decoding_span_size', type=int, default=15,
@@ -306,7 +306,7 @@ def main(argv):
         print(f"Creating the output directory at {pathOutputDir}")
         Path(pathOutputDir).mkdir(parents=True, exist_ok=True)
     # writeArgs(join(pathOutputDir, "_info_args.json"), args)
-    
+
     # Continue
     if args.resume:
         if exists(args.pathOutputFile):
@@ -346,7 +346,7 @@ def main(argv):
                             intput_file_seqs, roberta, tokenized=True,
                             decoding_span_size=args.decoding_span_size, temporal_sliding_size = args.temporal_sliding_size,
                             span_overlap=not args.no_overlap,
-                            batchsen_size=args.batchsen_size, inner_batch_size = args.inner_batch_size, 
+                            batchsen_size=args.batchsen_size, inner_batch_size = args.inner_batch_size,
                             gpu=not args.cpu, print_tokens=False, verbose=False,
                             save_to=args.pathOutputFile, file_names=input_file_names)
 

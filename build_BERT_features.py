@@ -24,7 +24,7 @@ def parseArgs(argv):
                         help='Path to the output directory.')
     parser.add_argument('pathBERTCheckpoint', type=str,
                         help='Path to the trained fairseq BERT(RoBERTa) model.')
-    parser.add_argument('--dict', type=str,	
+    parser.add_argument('--dict', type=str,
                        help='Path to the dictionary file (dict.txt) used to train the BERT model'
                        '(if not speficied, look for dict.txt in the model directory)')
     parser.add_argument('--hidden_level', type=int, default=-1,
@@ -99,12 +99,12 @@ def main(argv):
     # Define BERT_feature_function
     def BERT_feature_function(input_sequence):
         sentence_tokens = roberta.task.source_dictionary.encode_line(
-                            "<s> " + input_sequence, 
-                            append_eos=True, 
+                            "<s> " + input_sequence,
+                            append_eos=True,
                             add_if_not_exist=False).type(torch.LongTensor)
         if not args.cpu:
             sentence_tokens = sentence_tokens.cuda()
-        
+
         with torch.no_grad():
             outputs = roberta.extract_features(sentence_tokens, return_all_hiddens=True)
 
@@ -123,9 +123,9 @@ def main(argv):
         BERT_features = BERT_feature_function(input_seq)
 
         # Save the outputs
-        file_name = os.path.splitext(name_seq)[0] + ".npy"
+        file_name = os.path.splitext(name_seq)[0] + ".txt"
         file_out = os.path.join(args.pathOutputDir, file_name)
-        np.save(file_out, BERT_features)
+        np.savetxt(file_out, BERT_features)
     bar.finish()
     print(f"...done {len(seqNames)} files in {time()-start_time} seconds.")
 

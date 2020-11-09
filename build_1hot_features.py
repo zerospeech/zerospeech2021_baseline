@@ -22,7 +22,7 @@ def parseArgs(argv):
     parser.add_argument('--n_units', type=int, default=50,
                         help='Number of discrete units (default: 50). If a dictionary is given,'
                         'this is automatically set as vocab size.')
-    parser.add_argument('--dict', type=str,	
+    parser.add_argument('--dict', type=str,
                        help='Path to the dictionary file containing vocab of the pseudo units on the dataset'
                        '(this is required if the quantized units are not digits, i.e. multi-group case).')
     parser.add_argument('--debug', action='store_true',
@@ -92,7 +92,7 @@ def main(argv):
             indexes_sequence = np.array([pair2idx[item] for item in input_sequence.split()])
         else:
             indexes_sequence = np.array([int(item) for item in input_sequence.split()])
-        
+
         onehotFeatures = np.eye(args.n_units)[indexes_sequence]
 
         return onehotFeatures
@@ -110,9 +110,9 @@ def main(argv):
         onehot_features = onehot_feature_function(input_seq)
 
         # Save the outputs
-        file_name = os.path.splitext(name_seq)[0] + ".npy"
+        file_name = os.path.splitext(name_seq)[0] + ".txt"
         file_out = os.path.join(args.pathOutputDir, file_name)
-        np.save(file_out, onehot_features)
+        np.savetxt(file_out, onehot_features)
     bar.finish()
     print(f"...done {len(seqNames)} files in {time()-start_time} seconds.")
 
