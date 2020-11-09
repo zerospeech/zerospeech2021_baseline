@@ -301,11 +301,11 @@ def main(argv):
 
     # Check if directory exists
     pathOutputDir = dirname(args.pathOutputFile)
-    if pathOutputDir and not os.path.exists(pathOutputDir):
+    if pathOutputDir and not exists(pathOutputDir):
         print("")
         print(f"Creating the output directory at {pathOutputDir}")
         Path(pathOutputDir).mkdir(parents=True, exist_ok=True)
-    # writeArgs(os.path.join(pathOutputDir, "_info_args.json"), args)
+    # writeArgs(join(pathOutputDir, "_info_args.json"), args)
     
     # Continue
     if args.resume:
