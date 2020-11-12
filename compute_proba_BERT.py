@@ -219,9 +219,9 @@ def compute_proba_BERT_mlm_span(
                             addEndLine = True
 
                 print("Batch {:d}/{:d}. Input shapes: {} Done in {:4f} s.\t\t\t".format(
-                                                                    i+1, n_batch,
-                                                                    shape_statistics,
-                                                                    time() - start_time), end = "\r")
+                    i+1, n_batch,
+                    shape_statistics,
+                    time() - start_time))
             print("\nDone all in {:4f} s.".format(time() - start_time_batch_zero))
         else:
             start_time = time()
