@@ -54,9 +54,9 @@ EOF
 
 # meta.yaml
 cat <<EOF > $output_directory/submission/meta.yaml
-authors: Zero Speech Challenge Organizers
+author: Zero Speech Challenge Organizers
 affiliation: EHESS, ENS, PSL Research Univerity, CNRS and Inria
-description:|
+description: >
   CPC (trained on librispeech 960), kmeans (trained on librispeech 100),
   BERT (trained on librispeech 960 encoded with the quantized units).
 open_source: true
@@ -64,7 +64,7 @@ train_set: librispeech 100 and 960
 parameters:
   phonetic:
     metric: cosine
-    frame_duration: 0.01
+    frame_shift: 0.01
   semantic:
     metric: cosine
     pooling: max
