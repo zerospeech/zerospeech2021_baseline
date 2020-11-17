@@ -226,6 +226,19 @@ def compute_proba_BERT_mlm_span(
         else:
             start_time = time()
             logproba_all, shape_statistics = compute_proba_batchsen(sequences)
+
+            if save_to is not None:
+                outLines = []
+                for fname, score in zip(file_names, logproba_all):
+                    outLines.append("\t".join([fname, str(score)]))
+                outLines = "\n".join(outLines)
+                with open(save_to, 'a') as f:
+                    if addEndLine:
+                        f.write("\n"+outLines)
+                    else:
+                        f.write(outLines)
+                        addEndLine = True
+
             print("Done all in {:4f} s.".format(time() - start_time))
 
         # Release all GPU memory
