@@ -230,7 +230,7 @@ def compute_proba_BERT_mlm_span(
             if save_to is not None:
                 outLines = []
                 for fname, score in zip(file_names, logproba_all):
-                    outLines.append("\t".join([fname, str(score)]))
+                    outLines.append(" ".join([fname, str(score)]))
                 outLines = "\n".join(outLines)
                 with open(save_to, 'a') as f:
                     if addEndLine:
