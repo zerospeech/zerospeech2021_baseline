@@ -2,7 +2,7 @@
 # Generate a complete submission to ZR2021 from the challenge baseline
 # On a cluster using SLURM, simply run:
 #    sbatch ./generate_submission.sh /path/to/dataset /path/to/output
-# This will create /path/to/output/baseline_submission.zip
+# This will create /path/to/output/zerospeech2021-baseline-submission.zip
 #
 #SBATCH --partition=gpu
 #SBATCH --nodelist=puck5
@@ -59,8 +59,10 @@ affiliation: EHESS, ENS, PSL Research Univerity, CNRS and Inria
 description: >
   CPC (trained on librispeech 960), kmeans (trained on librispeech 100),
   BERT (trained on librispeech 960 encoded with the quantized units).
+  See https://zerospeech.com/2021 for more details.
 open_source: true
 train_set: librispeech 100 and 960
+gpu_budget: 1536
 parameters:
   phonetic:
     metric: cosine
@@ -137,7 +139,7 @@ done
 # cleanup and archive creation
 find $output_directory/submission -type f -name _info_args.json -delete
 cd $output_directory/submission
-zip -q -r ../submission_baseline.zip .
+zip -q -r ../zerospeech2021-submission-baseline.zip .
 cd -
 # rm -rf $output_directory/{submission,quantized}
 
