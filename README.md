@@ -13,7 +13,7 @@ In order to run the evaluation and/or train the baseline model. The two followin
 The checkpoints can be downloaded from ??? and put in the directory `checkpoints` as follows:
 ```
 checkpoints  
-└───CPC-big-kmeans50-BERT
+└───CPC-big-kmeans50
 │   └───CPC_big_6kh
 │   │   └─checkpoint_32.pt
 │   │   └─checkpoint_args.json

@@ -8,9 +8,8 @@ from time import time
 import numpy as np
 
 import torch
-from fairseq.models.roberta import RobertaModel
 
-from utils.utils_functions import writeArgs
+from utils.utils_functions import writeArgs, loadRobertaCheckpoint
 
 def parseArgs(argv):
     # Run parameters
