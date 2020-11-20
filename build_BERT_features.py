@@ -10,9 +10,7 @@ import numpy as np
 import torch
 from fairseq.models.roberta import RobertaModel
 
-def writeArgs(pathArgs, args):
-    with open(pathArgs, 'w') as file:
-        json.dump(vars(args), file, indent=2)
+from utils.utils_functions import writeArgs
 
 def parseArgs(argv):
     # Run parameters
@@ -82,15 +80,18 @@ def main(argv):
 
     # Load BERT model
     if args.dict is None:
-        PATH_DATA = os.path.dirname(args.pathBERTCheckpoint)
+        pathData = os.path.dirname(args.pathBERTCheckpoint)
     else:
-        PATH_DATA = os.path.dirname(args.dict)
-    assert os.path.exists(os.path.join(PATH_DATA, "dict.txt")), \
-        f"Dictionary file (dict.txt) not found in {PATH_DATA}"
+        pathData = os.path.dirname(args.dict)
+    assert os.path.exists(os.path.join(pathData, "dict.txt")), \
+        f"Dictionary file (dict.txt) not found in {pathData}"
     print("")
     print(f"Loading RoBERTa model from {args.pathBERTCheckpoint}...")
-    print(f"Path data {PATH_DATA}")
-    roberta = RobertaModel.from_pretrained(os.path.dirname(args.pathBERTCheckpoint), os.path.basename(args.pathBERTCheckpoint), PATH_DATA)
+    print(f"Path data {pathData}")
+    roberta = loadRobertaCheckpoint(
+                args.pathBERTCheckpoint, 
+                pathData, 
+                from_pretrained=False)
     roberta.eval()  # disable dropout (or leave in train mode to finetune)
     if not args.cpu:
         roberta.cuda()

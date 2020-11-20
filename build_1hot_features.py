@@ -7,9 +7,7 @@ from pathlib import Path
 from time import time
 import numpy as np
 
-def writeArgs(pathArgs, args):
-    with open(pathArgs, 'w') as file:
-        json.dump(vars(args), file, indent=2)
+from utils.utils_functions import writeArgs
 
 def parseArgs(argv):
     # Run parameters

@@ -10,9 +10,7 @@ import numpy as np
 from cpc.dataset import findAllSeqs
 from cpc.feature_loader import buildFeature, FeatureModule, loadModel
 
-def writeArgs(pathArgs, args):
-    with open(pathArgs, 'w') as file:
-        json.dump(vars(args), file, indent=2)
+from utils.utils_functions import writeArgs, loadCPCFeatureMaker
 
 def parseArgs(argv):
     # Run parameters
@@ -91,17 +89,17 @@ def main(argv):
 
     # Load CPC feature maker
     print("")
-    print(f"Loading CPC model from {args.pathCPCCheckpoint}")
-    if args.gru_level > 0:
-        updateConfig = argparse.Namespace(nLevelsGRU=args.gru_level)
-    else:
-        updateConfig = None
-    model, nHiddenGar, nHiddenEncoder = loadModel([args.pathCPCCheckpoint], updateConfig=updateConfig)
-    model.gAR.keepHidden = True
-    featureMaker = FeatureModule(model, get_encoded=args.get_encoded)
+    print(f"Loading CPC featureMaker from {args.pathCPCCheckpoint}")
+    featureMaker = loadCPCFeatureMaker(
+        args.pathCPCCheckpoint, 
+        gru_level = args.gru_level, 
+        get_encoded = args.get_encoded, 
+        keep_hidden = True)
     featureMaker.eval()
     if not args.cpu:
         featureMaker.cuda()
+    print("CPC FeatureMaker loaded!")
+
     # Define CPC_feature_function
     def CPC_feature_function(x): 
         CPC_features = buildFeature(featureMaker, x,
@@ -109,7 +107,6 @@ def main(argv):
                                     strict=args.strict,
                                     maxSizeSeq=args.max_size_seq)
         return CPC_features.squeeze(0).float().cpu().numpy()
-    print("CPC FeatureMaker loaded!")
 
     # Building features
     print("")
