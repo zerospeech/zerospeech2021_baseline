@@ -21,8 +21,8 @@ def parseArgs(argv):
                         help='Path to the dataset that we want to quantize.')
     parser.add_argument('pathOutputDir', type=str,
                         help='Path to the output directory.')
-    parser.add_argument('--file_extension', type=str, default=".flac",
-                          help="Extension of the audio files in the dataset (default: .flac).")
+    parser.add_argument('--file_extension', type=str, default="wav",
+                          help="Extension of the audio files in the dataset (default: wav).")
     parser.add_argument('--get_encoded', type=bool, default=False,
                         help='If True, get the outputs of the encoder layer only (default: False).')
     parser.add_argument('--gru_level', type=int, default=-1,
@@ -124,9 +124,9 @@ def main(argv):
         CPC_features = CPC_feature_function(file_path)
 
         # Save the outputs
-        file_name = os.path.splitext(os.path.basename(file_path))[0] + ".npy"
+        file_name = os.path.splitext(os.path.basename(file_path))[0] + ".txt"
         file_out = os.path.join(args.pathOutputDir, file_name)
-        np.save(file_out, CPC_features)
+        np.savetxt(file_out, CPC_features)
     bar.finish()
     print(f"...done {len(seqNames)} files in {time()-start_time} seconds.")
 

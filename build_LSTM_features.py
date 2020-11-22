@@ -6,23 +6,24 @@ import progressbar
 from pathlib import Path
 from time import time
 import numpy as np
+from copy import deepcopy
 
 import torch
 
-from utils.utils_functions import writeArgs, loadRobertaCheckpoint
+from utils.utils_functions import writeArgs, loadLSTMLMCheckpoint
 
 def parseArgs(argv):
     # Run parameters
-    parser = argparse.ArgumentParser(description='Export BERT features from quantized units of audio files.')
+    parser = argparse.ArgumentParser(description='Export LSTM features from quantized units of audio files.')
     parser.add_argument('pathQuantizedUnits', type=str,
                         help='Path to the quantized units. Each line of the input file must be'
                         'of the form file_name[tab]pseudo_units (ex. hat  1,1,2,3,4,4)')
     parser.add_argument('pathOutputDir', type=str,
                         help='Path to the output directory.')
-    parser.add_argument('pathBERTCheckpoint', type=str,
-                        help='Path to the trained fairseq BERT(RoBERTa) model.')
+    parser.add_argument('pathLSTMCheckpoint', type=str,
+                        help='Path to the trained fairseq lstm_lm model.')
     parser.add_argument('--dict', type=str,
-                       help='Path to the dictionary file (dict.txt) used to train the BERT model'
+                       help='Path to the dictionary file (dict.txt) used to train the LSTM LM model'
                        '(if not speficied, look for dict.txt in the model directory)')
     parser.add_argument('--hidden_level', type=int, default=-1,
                           help="Hidden layer of BERT to extract features from (default: -1, last layer).")
@@ -77,42 +78,65 @@ def main(argv):
         seqNames = seqNames[:nsamples]
         seqInputs = seqInputs[:nsamples]
 
-    # Load BERT model
+    # Load LSTM model
     if args.dict is None:
-        pathData = os.path.dirname(args.pathBERTCheckpoint)
+        pathData = os.path.dirname(args.pathLSTMCheckpoint)
     else:
         pathData = os.path.dirname(args.dict)
     assert os.path.exists(os.path.join(pathData, "dict.txt")), \
         f"Dictionary file (dict.txt) not found in {pathData}"
     print("")
-    print(f"Loading RoBERTa model from {args.pathBERTCheckpoint}...")
+    print(f"Loading LSTM model from {args.pathLSTMCheckpoint}...")
     print(f"Path data {pathData}")
-    roberta = loadRobertaCheckpoint(
-                args.pathBERTCheckpoint, 
-                pathData, 
-                from_pretrained=False)
-    roberta.eval()  # disable dropout (or leave in train mode to finetune)
+    model, task = loadLSTMLMCheckpoint(
+                    args.pathLSTMCheckpoint, 
+                    pathData)
+    model.eval()  # disable dropout (or leave in train mode to finetune)
     if not args.cpu:
-        roberta.cuda()
+        model.cuda()
     print("Model loaded !")
 
-    # Define BERT_feature_function
-    def BERT_feature_function(input_sequence, n_hidden=-1):
-        sentence_tokens = roberta.task.source_dictionary.encode_line(
+    # Define LSTM_feature_function
+    def LSTM_feature_function(input_sequence, n_hidden=-1):
+        # Get the number of layers
+        num_layers = len(model.decoder.layers)
+        assert abs(n_hidden) <= num_layers, \
+            "absolute value of n_hidden must be less than or equal to the number of hidden layers = {}".format(num_layers)
+
+        if n_hidden < 0:
+            n_hidden = num_layers + 1 + n_hidden
+
+        # Get input tensor
+        input_tensor = task.source_dictionary.encode_line(
                             "<s> " + input_sequence,
                             append_eos=True,
-                            add_if_not_exist=False).type(torch.LongTensor)
+                            add_if_not_exist=False).type(torch.LongTensor).unsqueeze(0)
         if not args.cpu:
-            sentence_tokens = sentence_tokens.cuda()
+            input_tensor = input_tensor.cuda()
+            
+        # Get the output
+        if n_hidden == 0: # Take the embedding layer
+            with torch.no_grad():
+                output_tensor = model.decoder.embed_tokens(input_tensor)
 
-        with torch.no_grad():
-            outputs = roberta.extract_features(sentence_tokens, return_all_hiddens=True)
+        else:
+            decoder_clone = deepcopy(model.decoder)
+            
+            # We don't take the final fc features
+            decoder_clone.fc_out = torch.nn.Identity()
+            decoder_clone.additional_fc = torch.nn.Identity()
+            
+            # Restrict the number of hiddden layers to n_hidden
+            decoder_clone.layers = decoder_clone.layers[:n_hidden]
 
-        return outputs[n_hidden].squeeze(0).float().cpu().numpy()
+            with torch.no_grad():
+                output_tensor = decoder_clone(input_tensor)[0]
+
+        return output_tensor[0].data.cpu().numpy()
 
     # Building features
     print("")
-    print(f"Building BERT features and saving outputs to {args.pathOutputDir}...")
+    print(f"Building LSTM features and saving outputs to {args.pathOutputDir}...")
     bar = progressbar.ProgressBar(maxval=len(seqNames))
     bar.start()
     start_time = time()
@@ -120,12 +144,12 @@ def main(argv):
         bar.update(index)
 
         # Computing features
-        BERT_features = BERT_feature_function(input_seq, n_hidden=args.hidden_level)
+        LSTM_features = LSTM_feature_function(input_seq, n_hidden=args.hidden_level)
 
         # Save the outputs
         file_name = os.path.splitext(name_seq)[0] + ".txt"
         file_out = os.path.join(args.pathOutputDir, file_name)
-        np.savetxt(file_out, BERT_features)
+        np.savetxt(file_out, LSTM_features)
     bar.finish()
     print(f"...done {len(seqNames)} files in {time()-start_time} seconds.")
 

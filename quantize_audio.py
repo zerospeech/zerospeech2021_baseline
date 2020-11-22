@@ -53,8 +53,8 @@ def parseArgs(argv):
     parser.add_argument('--split', type=str, default=None,
                         help='If you want to divide the dataset in small splits, specify it '
                         'with idxSplit-numSplits (idxSplit > 0), eg. --split 1-20.')
-    parser.add_argument('--file_extension', type=str, default=".flac",
-                          help="Extension of the audio files in the dataset (default: .flac).")
+    parser.add_argument('--file_extension', type=str, default="wav",
+                          help="Extension of the audio files in the dataset (default: wav).")
     parser.add_argument('--max_size_seq', type=int, default=10240,
                         help='Maximal number of frames to consider '
                         'when computing a batch of features (defaut: 10240).')
