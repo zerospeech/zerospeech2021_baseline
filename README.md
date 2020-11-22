@@ -34,11 +34,11 @@ checkpoints
 ### Audio quantization
 First of all, we need to quantize the audio files with the CPC+clustering modules.
 
-To quantize a set of audio files, run the `clustering_quantization.py` script.
+To quantize a set of audio files, run the `quantize_audio.py` script.
 
 Example command:
 ```bash
-python clustering_quantization.py checkpoints/CPC-big-kmeans50/clustering_kmeans50/clustering_CPC_big_kmeans50.pt ../data/LibriSpeech/dev-clean/ ../quantized/LibriSpeech/dev-clean/ --file_extension flac
+python quantize_audio.py checkpoints/CPC-big-kmeans50/clustering_kmeans50/clustering_CPC_big_kmeans50.pt ../data/LibriSpeech/dev-clean/ ../quantized/LibriSpeech/dev-clean/ --file_extension flac
 ```
 
 The quantized units will be written in the `quantized_outputs.txt` file in the output directory.
