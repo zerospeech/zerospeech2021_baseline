@@ -78,7 +78,7 @@ for task in lexical syntactic
 do
     for kind in dev test
     do
-        python ./clustering_quantization.py \
+        python ./quantize_audio.py \
                ./checkpoints/CPC-big-kmeans50-BERT/clustering_kmeans50/clustering_CPC_big_kmeans50.pt \
                $dataset/$task/$kind \
                $output_directory/quantized/$task/$kind \
@@ -99,7 +99,7 @@ for kind in dev test
 do
     for corpus in synthetic librispeech
     do
-        python ./clustering_quantization.py \
+        python ./quantize_audio.py \
                ./checkpoints/CPC-big-kmeans50-BERT/clustering_kmeans50/clustering_CPC_big_kmeans50.pt \
                $dataset/semantic/$kind/$corpus \
                $output_directory/quantized/semantic/$kind/$corpus \
@@ -121,7 +121,7 @@ for kind in dev test
 do
     for corpus in clean other
     do
-        python ./clustering_quantization.py \
+        python ./quantize_audio.py \
                ./checkpoints/CPC-big-kmeans50-BERT/clustering_kmeans50/clustering_CPC_big_kmeans50.pt \
                $dataset/phonetic/${kind}-${corpus} \
                $output_directory/quantized/phonetic/${kind}-${corpus} \
@@ -139,7 +139,7 @@ done
 # cleanup and archive creation
 find $output_directory/submission -type f -name _info_args.json -delete
 cd $output_directory/submission
-zip -q -r ../zerospeech2021-submission-baseline.zip .
+zip -q -r ../zerospeech2021-submission-baseline-bert.zip .
 cd -
 # rm -rf $output_directory/{submission,quantized}
 

@@ -1,0 +1,24 @@
+name: zerospeech2021_baseline
+channels:
+  - pytorch
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.6
+  - cudatoolkit=9.2
+  - cython
+  - nose
+  - numpy
+  - openblas-devel
+  - pip
+  - psutil
+  - pysoundfile
+  - pytorch>=1.5.0
+  - torchvision
+  - torchaudio
+  - tqdm
+  - pip:
+      - progressbar2
+      - "git+https://github.com/pytorch/fairseq.git"
+      - "git+https://github.com/facebookresearch/CPC_audio.git@zerospeech"
