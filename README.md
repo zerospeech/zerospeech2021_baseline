@@ -13,21 +13,32 @@ In order to run the evaluation and/or train the baseline model. The two followin
 The checkpoints can be downloaded from `to_be_decided` and put in the directory `checkpoints` as follows:
 ```
 checkpoints  
-└───CPC-big-kmeans50
-│   └───CPC_big_6kh
-│   │   └─checkpoint_32.pt
-│   │   └─checkpoint_args.json
-│   └───clustering_kmeans50
-│   │   └─clustering_CPC_big_kmeans50.pt
-│   │   └─clustering_CPC_big_kmeans50_args.json
-│   └───BERT
-│   │   └─BERT_CPC_big_kmeans50.pt
-│   │   └─dict.txt
-│   └───LSTM
-│   │   └─LSTM_CPC_big_kmeans50.pt
-│   │   └─dict.txt
-│   └───...
-└───...
+├── CPC-big-kmeans50
+│   ├── cpc_ll6k
+│   │   ├── checkpoint_32.pt
+│   │   └── checkpoint_args.json
+│   ├── clustering_kmeans50
+│   │   ├── clustering_CPC_big_kmeans50_args.json
+│   │   └── clustering_CPC_big_kmeans50.pt
+│   ├── BERT
+│   │   ├── BERT_CPC_big_kmeans50.pt
+│   │   └── dict.txt
+│   ├── BERT_small
+│   │   ├── BERT_small_CPC_big_kmeans50.pt
+│   │   └── dict.txt
+│   └── LSTM
+│       ├── dict.txt
+│       └── LSTM_CPC_big_kmeans50.pt
+└── CPC-small-kmeans50
+    ├── cpc_ls100
+    │   ├── checkpoint_170.pt
+    │   └── checkpoint_args.json
+    ├── clustering_kmeans50
+    │   ├── clustering_CPC_small_kmeans50_args.json
+    │   └── clustering_CPC_small_kmeans50.pt
+    └── BERT
+        ├── BERT_CPC_small_kmeans50.pt
+        └── dict.txt
 ```
 
 ## Evaluations
