@@ -26,6 +26,14 @@ described in our paper.
       conda activate zerospeech2021_baseline
 
 
+## Submission generation
+
+The submissions for LSTM and BERT baselines (the ones available on
+https://download.zerospeech.com) can be generated with the `submission/run.sh`
+script on a cluster with SLURM available. Have a `./submission/run.sh --help`
+for details.
+
+
 ## Evaluations
 
 ### Audio quantization
