@@ -72,7 +72,7 @@ kind=$4       # dev or test
 [ ! -d $dataset ] \
     && error "DATASET not found: $dataset"
 
-[ $task != "lexical" -a $task != "syntactic " ] \
+[ $task != "lexical" -a $task != "syntactic" ] \
     && error "TASK must be lexical or syntactic, it is: $task"
 
 [ $kind != "dev" -a $kind != "test" ] \
