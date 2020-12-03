@@ -8,7 +8,7 @@
 ##
 ## Example:
 ##
-## ./run.sh /path/to/dataset ./output --partition=gpu --nodelist=puck5 --gres=gpu:rtx8000:1
+## ./run.sh /path/to/dataset ./output --partition=gpu --gres=gpu:1
 ##
 ## Parameters:
 ##
@@ -133,6 +133,5 @@ do
             --job-name=semantic_${kind}_${corpus} \
             --output=$output_dir/log/%x.log \
             $here/run_semantic.sh $dataset $output_dir $kind $corpus
-        exit 0
     done
 done
