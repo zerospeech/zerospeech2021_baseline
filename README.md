@@ -4,7 +4,7 @@ This repository contains the baseline systems of the ZeroSpeech Challenge 2021.
 
 The baseline system consists of 3 different componants: Unsupervised Acoustic
 Modeling (CPC), Clustering (k-means) and Language Modeling (BERT/LSTM) as
-described in our paper.
+described in [The Zero Resource Speech Benchmark 2021: Metrics and baselines for unsupervised spoken language modeling](https://arxiv.org/abs/2011.11588).
 
 ## Installation
 
@@ -233,3 +233,16 @@ We can train the fairseq's LSTM Language Model with the following command:
         --dropout 0.1 --weight-decay 0.01 \
         --sample-break-mode none --tokens-per-sample 2048\
         --max-tokens 163840 --update-freq 1 --max-update 100000
+
+## Citation
+Please consider citing this paper if it helps your research.
+```
+@misc{nguyen2020zero,
+      title={The Zero Resource Speech Benchmark 2021: Metrics and baselines for unsupervised spoken language modeling}, 
+      author={Tu Anh Nguyen and Maureen de Seyssel and Patricia Rozé and Morgane Rivière and Evgeny Kharitonov and Alexei Baevski and Ewan Dunbar and Emmanuel Dupoux},
+      year={2020},
+      eprint={2011.11588},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+```
