@@ -122,7 +122,7 @@ below.
 ### CPC
 
 To train the CPC model, follow the instructions at
-https://github.com/facebookresearch/CPC_audio.
+https://github.com/tuanh208/CPC_audio/tree/zerospeech
 
 Example command:
 
@@ -141,7 +141,7 @@ where examples of `train_split.txt` and `test_split.txt` can be found
 
 To train the k-means clustering, run the script `clustering_script.py` in the
 following
-[repository](https://github.com/facebookresearch/CPC_audio/tree/zerospeech/cpc/criterion/clustering)
+[repository](https://github.com/tuanh208/CPC_audio/tree/zerospeech/cpc/criterion/clustering)
 `CPC_audio/cpc/criterion/clustering/`.
 
 Example command:
