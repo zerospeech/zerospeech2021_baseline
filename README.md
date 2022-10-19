@@ -15,7 +15,7 @@ described in [The Zero Resource Speech Benchmark 2021: Metrics and baselines for
 
 * Download the checkpoints in the `checkpoints` directory:
 
-      curl https://download.zerospeech.com/2021/baseline_checkpoints.tar.gz | tar xz
+      curl http://download.zerospeech.com/models/2021_baseline.checkpoints.tar.gz | tar xz
 
 * Setup a conda environment:
 
@@ -29,7 +29,7 @@ described in [The Zero Resource Speech Benchmark 2021: Metrics and baselines for
 ## Submission generation
 
 The submissions for LSTM and BERT baselines (the ones available on
-https://download.zerospeech.com) can be generated with the `submission/run.sh`
+https://zerospeech.com) can be generated with the `submission/run.sh`
 script on a cluster with SLURM available. Have a `./submission/run.sh --help`
 for details.
 
